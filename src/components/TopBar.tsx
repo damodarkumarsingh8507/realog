@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Menu,
   Bell,
-  Play,
   Calendar,
   Building,
   AlertTriangle,
@@ -16,8 +15,8 @@ import { AnomalyAlert } from '../types';
 
 interface TopBarProps {
   onToggleSidebar: () => void;
-  onRunWorkflow: () => void;
-  isWorkflowRunning: boolean;
+  onRunWorkflow?: () => void;
+  isWorkflowRunning?: boolean;
   activeAlerts: AnomalyAlert[];
   onSelectAlert: (alert: AnomalyAlert) => void;
   campusName?: string;
@@ -189,17 +188,6 @@ export const TopBar: React.FC<TopBarProps> = ({
               </>
             )}
           </div>
-
-          {/* "Run Campus Energy Audit" Trigger */}
-          <button
-            onClick={onRunWorkflow}
-            disabled={isWorkflowRunning}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs sm:text-sm font-semibold shadow-md shadow-emerald-600/25 active:scale-98 transition-all disabled:opacity-70 group"
-          >
-            <Play className={`w-3.5 h-3.5 fill-white ${isWorkflowRunning ? 'animate-spin' : 'group-hover:scale-110'} transition-transform`} />
-            <span className="hidden sm:inline">Run Campus Audit</span>
-            <span className="sm:hidden">Audit</span>
-          </button>
 
           {/* User Profile Pill */}
           <div className="hidden xl:flex items-center gap-2 pl-2 border-l border-slate-200">

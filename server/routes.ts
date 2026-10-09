@@ -1,4 +1,5 @@
-import { Router, Request, Response } from 'express';
+import express from 'express';
+import type { Request, Response } from 'express';
 import { getDatabase } from './database.ts';
 import { generateSyntheticData } from './seedData.ts';
 import {
@@ -9,7 +10,7 @@ import {
 } from './mlEngine.ts';
 import { getCampusSummary } from './costEmissions.ts';
 
-export const apiRouter = Router();
+export const apiRouter = express.Router();
 
 // GET /api/dashboard/summary
 apiRouter.get('/dashboard/summary', (req: Request, res: Response) => {

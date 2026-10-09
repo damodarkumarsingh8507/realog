@@ -41,14 +41,8 @@ export const ExecutiveOverview: React.FC<ExecutiveOverviewProps> = ({
   onOpenAlertModal,
   onNavigateToRecommendations
 }) => {
-  const [dateRange, setDateRange] = useState<'today' | '7d' | '30d' | 'custom'>('7d');
-
-  // Filter daily trends based on dateRange
-  const displayedDaily = dateRange === 'today'
-    ? dailyTrends.slice(-1)
-    : dateRange === '7d'
-    ? dailyTrends.slice(-7)
-    : dailyTrends;
+  // Continuous 14-day telemetry baseline for prototype presentation
+  const displayedDaily = dailyTrends;
 
   // Chart 1: Daily Actual vs Expected Baseline
   const lineChartData = {
@@ -127,44 +121,8 @@ export const ExecutiveOverview: React.FC<ExecutiveOverviewProps> = ({
             Campus Energy Intelligence Overview
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Real-time energy consumption telemetry, demand baselining, and automated wastage auditing.
+            Real-time energy consumption telemetry, demand baselining, and automated wastage monitoring.
           </p>
-        </div>
-
-        {/* Date Filter Tabs */}
-        <div className="flex items-center p-1 rounded-xl bg-slate-200/80 border border-slate-300/70 text-xs font-semibold self-start md:self-auto">
-          <button
-            onClick={() => setDateRange('today')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              dateRange === 'today' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Today
-          </button>
-          <button
-            onClick={() => setDateRange('7d')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              dateRange === '7d' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Last 7 Days
-          </button>
-          <button
-            onClick={() => setDateRange('30d')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              dateRange === '30d' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Last 30 Days
-          </button>
-          <button
-            onClick={() => setDateRange('custom')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              dateRange === 'custom' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Custom Range
-          </button>
         </div>
       </div>
 
