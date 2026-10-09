@@ -31,6 +31,14 @@ export const ResolveAlertModal: React.FC<ResolveAlertModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    if (alert) {
+      setStatus(alert.status === 'Open' ? 'Acknowledged' : alert.status);
+      setResolutionNotes(alert.resolution_notes || '');
+      setError(null);
+    }
+  }, [alert]);
+
   if (!isOpen || !alert) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,12 +143,7 @@ export const ResolveAlertModal: React.FC<ResolveAlertModalProps> = ({
           {/* Explanation & Action */}
           <div className="space-y-2">
             <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-700">Root Cause Explanation:</span>
-                <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-bold">
-                  RFID Access Log Verified
-                </span>
-              </div>
+              <span className="text-[11px] font-bold text-slate-700">Root Cause Explanation:</span>
               <p className="text-slate-600 bg-amber-50/70 border border-amber-200/60 p-2.5 rounded-xl text-xs mt-1">
                 {alert.likely_explanation}
               </p>

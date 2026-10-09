@@ -30,7 +30,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   isWorkflowRunning,
   activeAlerts,
   onSelectAlert,
-  campusName = 'Apex University Central Campus',
+  campusName = 'University Central Campus',
   onRefresh,
   isRefreshing
 }) => {

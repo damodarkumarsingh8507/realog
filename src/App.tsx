@@ -10,6 +10,7 @@ import { DemandPrediction } from './pages/DemandPrediction';
 import { AnomalyDetection } from './pages/AnomalyDetection';
 import { RecommendationsSustainability } from './pages/RecommendationsSustainability';
 import { DataManagementSettings } from './pages/DataManagementSettings';
+import { CampusDigitalTwin } from './pages/CampusDigitalTwin';
 import { api, DashboardResponse } from './services/api';
 import { Building, AnomalyAlert } from './types';
 import { Loader2, RefreshCw, Wifi, WifiOff } from 'lucide-react';
@@ -18,7 +19,7 @@ import { fallbackBuildings, fallbackDashboard } from './services/fallbackData';
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const campusName = 'Apex University Central Campus';
+  const campusName = 'University Central Campus';
   const [selectedBuildingId, setSelectedBuildingId] = useState<string>('comp_lab');
 
   // Modals
@@ -98,8 +99,25 @@ export default function App() {
     setCurrentTab('analytics');
   };
 
-  const handleAlertUpdated = (_updated: AnomalyAlert) => {
-    handleRefresh();
+  const [lastUpdatedAlert, setLastUpdatedAlert] = useState<AnomalyAlert | null>(null);
+
+  const handleAlertUpdated = (updated: AnomalyAlert) => {
+    setLastUpdatedAlert(updated);
+    setDashboardData((prev) => {
+      if (!prev) return prev;
+      const updatedRecent = prev.recentAlerts.map((a) => (a.id === updated.id ? { ...a, ...updated } : a));
+      const activeCount = updatedRecent.filter((a) => a.status !== 'Resolved').length;
+      return {
+        ...prev,
+        recentAlerts: updatedRecent,
+        summary: {
+          ...prev.summary,
+          activeAlertsCount: activeCount
+        }
+      };
+    });
+    // Background sync with database
+    api.getDashboardSummary().then((dash) => setDashboardData(dash)).catch(() => {});
   };
 
   const loadFallbackImmediately = () => {
@@ -212,12 +230,23 @@ export default function App() {
             />
           )}
 
+          {currentTab === 'digital-twin' && (
+            <CampusDigitalTwin
+              buildings={buildings}
+              onSelectBuilding={(bId) => {
+                setSelectedBuildingId(bId);
+                setCurrentTab('analytics');
+              }}
+            />
+          )}
+
           {currentTab === 'analytics' && (
             <BuildingAnalytics
               buildings={buildings}
               selectedBuildingId={selectedBuildingId}
               onSelectBuildingId={setSelectedBuildingId}
               onOpenAlertModal={(a) => setActiveAlertForModal(a)}
+              lastUpdatedAlert={lastUpdatedAlert}
             />
           )}
 
@@ -228,6 +257,7 @@ export default function App() {
               buildings={buildings}
               onOpenAlertModal={(a) => setActiveAlertForModal(a)}
               onAlertUpdated={handleAlertUpdated}
+              lastUpdatedAlert={lastUpdatedAlert}
             />
           )}
 

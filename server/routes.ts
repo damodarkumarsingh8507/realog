@@ -184,7 +184,7 @@ apiRouter.get('/simulation/live', (req: Request, res: Response) => {
     const instantaneousEmissionsKgPerHour = Math.round(netGridDrawKw * emissionFactor * 10) / 10;
 
     res.json({
-      campusName: 'Apex University Central Campus',
+      campusName: 'University Central Campus',
       instantaneousTotalPowerKw: totalCampusKw,
       instantaneousBaselineKw,
       powerFactor: Math.round((0.96 + Math.sin(sec * 0.1) * 0.015) * 100) / 100,
@@ -737,7 +737,12 @@ apiRouter.patch('/alerts/:id', (req: Request, res: Response) => {
       VALUES (?, ?, ?, ?, ?)
     `).run('UPDATE_ALERT', 'anomaly_alert', alertId, `Alert status changed to '${status}'. Notes: ${notes || 'none'}`, nowIso);
 
-    const updated = db.prepare('SELECT * FROM anomaly_alerts WHERE id = ?').get(alertId);
+    const updated = db.prepare(`
+      SELECT a.*, b.name as building_name
+      FROM anomaly_alerts a
+      LEFT JOIN buildings b ON a.building_id = b.id
+      WHERE a.id = ?
+    `).get(alertId);
     res.json(updated);
   } catch (err: any) {
     res.status(500).json({ error: err.message });

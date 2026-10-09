@@ -16,8 +16,7 @@ import {
   Loader2,
   Cpu,
   BookOpen,
-  Home,
-  CreditCard
+  Home
 } from 'lucide-react';
 import { LineChart, BarChart } from '../components/charts/Charts';
 import { Building, AnomalyAlert } from '../types';
@@ -28,19 +27,36 @@ interface BuildingAnalyticsProps {
   selectedBuildingId: string;
   onSelectBuildingId: (id: string) => void;
   onOpenAlertModal: (alert: AnomalyAlert) => void;
+  lastUpdatedAlert?: AnomalyAlert | null;
 }
 
 export const BuildingAnalytics: React.FC<BuildingAnalyticsProps> = ({
   buildings,
   selectedBuildingId,
   onSelectBuildingId,
-  onOpenAlertModal
+  onOpenAlertModal,
+  lastUpdatedAlert
 }) => {
   const [data, setData] = useState<BuildingAnalyticsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [timeView, setTimeView] = useState<'24h' | '30d'>('24h');
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>('all');
+
+  // Sync alert status immediately if modified from modal
+  useEffect(() => {
+    if (lastUpdatedAlert) {
+      setData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          anomalies: prev.anomalies.map((a) =>
+            a.id === lastUpdatedAlert.id ? { ...a, ...lastUpdatedAlert } : a
+          )
+        };
+      });
+    }
+  }, [lastUpdatedAlert]);
 
   useEffect(() => {
     let isMounted = true;
@@ -127,13 +143,13 @@ export const BuildingAnalytics: React.FC<BuildingAnalyticsProps> = ({
     datasets: [
       {
         type: 'line' as const,
-        label: 'RFID Turnstile Net Headcount (Students)',
+        label: 'Occupancy (Students)',
         data: hourlyComparison.map((h) => h.occupancy),
         borderColor: '#8b5cf6',
-        backgroundColor: 'rgba(139, 92, 246, 0.12)',
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
         yAxisID: 'yOcc',
         tension: 0.3,
-        borderWidth: 2.5
+        borderWidth: 2
       },
       {
         type: 'line' as const,
@@ -153,7 +169,7 @@ export const BuildingAnalytics: React.FC<BuildingAnalyticsProps> = ({
       yOcc: {
         type: 'linear',
         position: 'left',
-        title: { display: true, text: 'Students (RFID Swipes)', font: { size: 10 } }
+        title: { display: true, text: 'Occupants', font: { size: 10 } }
       },
       yTemp: {
         type: 'linear',
@@ -371,43 +387,16 @@ export const BuildingAnalytics: React.FC<BuildingAnalyticsProps> = ({
             </div>
           </div>
 
-          <div className="p-3 rounded-2xl bg-purple-50/80 border border-purple-200/80 flex items-center gap-2.5">
-            <CreditCard className="w-4 h-4 text-purple-600 shrink-0" />
+          <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/60 flex items-center gap-2.5">
+            <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
             <div>
-              <span className="text-[10px] text-purple-700 block font-bold">RFID Turnstiles</span>
-              <span className="font-bold text-purple-950 font-mono">
-                {latestReading?.occupancy_count ?? 0} Inside
+              <span className="text-[10px] text-slate-400 block font-medium">Per Student</span>
+              <span className="font-bold text-slate-800">
+                {latestReading && latestReading.occupancy_count > 0
+                  ? `${(latestReading.consumption_kwh / latestReading.occupancy_count).toFixed(2)} kWh`
+                  : 'N/A'}
               </span>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* RFID Smart Card Turnstile Ingress/Egress Banner */}
-      <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-purple-950 via-slate-900 to-slate-900 text-white border border-purple-800/60 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center text-purple-300 shrink-0">
-            <CreditCard className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h4 className="text-sm font-bold text-white tracking-tight">
-                RFID Smart Card Turnstiles &amp; Access Control Telemetry
-              </h4>
-              <span className="px-2 py-0.2 rounded-full text-[10px] font-bold bg-purple-500/30 text-purple-200 border border-purple-400/30">
-                Live Turnstile Logs
-              </span>
-            </div>
-            <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">
-              Automated badge swipes at entry gates log net headcount inside {building.name}. When the turnstile headcount is negligible while HVAC or lighting loads are high, the AI flags energy wastage.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 shrink-0 self-stretch md:self-auto justify-between md:justify-end border-t md:border-t-0 border-slate-800 pt-2 md:pt-0">
-          <div className="text-right">
-            <span className="text-[10px] text-purple-300 uppercase font-semibold block">Turnstile Net Headcount</span>
-            <span className="font-mono text-lg font-black text-white">{latestReading?.occupancy_count ?? 0} Students</span>
           </div>
         </div>
       </div>
@@ -438,14 +427,14 @@ export const BuildingAnalytics: React.FC<BuildingAnalyticsProps> = ({
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-bold text-slate-900">
-                RFID Turnstile Net Headcount vs Ambient Temp
+                Student Occupancy &amp; Outdoor Temperature
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Automated badge swipes at entry gates log net headcount inside the facility in real time.
+                Evaluates cooling loads driven by thermal heat vs student density.
               </p>
             </div>
             <div className="text-[11px] font-medium text-slate-500 flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> RFID Swipes
+              <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Occupancy
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500 ml-2" /> Temp (°C)
             </div>
           </div>

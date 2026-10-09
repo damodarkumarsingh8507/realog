@@ -10,7 +10,7 @@ import {
   ChevronRight,
   ShieldCheck,
   Radio,
-  CreditCard
+  Compass
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -34,6 +34,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Executive Overview',
       subtitle: 'Campus KPIs & Baselining',
       icon: LayoutDashboard
+    },
+    {
+      id: 'digital-twin',
+      label: 'Campus Digital Twin',
+      subtitle: 'Spatial Heatmap & Microgrid',
+      icon: Compass,
+      badge: 'Live'
     },
     {
       id: 'analytics',
@@ -61,6 +68,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       subtitle: 'Financial ROI & Carbon Offsets',
       icon: Leaf,
       badge: 'ESG'
+    },
+    {
+      id: 'data',
+      label: 'Campus Grid & Settings',
+      subtitle: 'IoT Telemetry & Tariffs',
+      icon: Settings2
     }
   ];
 

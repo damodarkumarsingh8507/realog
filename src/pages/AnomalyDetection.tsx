@@ -24,12 +24,14 @@ interface AnomalyDetectionProps {
   buildings: Building[];
   onOpenAlertModal: (alert: AnomalyAlert) => void;
   onAlertUpdated: (updated: AnomalyAlert) => void;
+  lastUpdatedAlert?: AnomalyAlert | null;
 }
 
 export const AnomalyDetection: React.FC<AnomalyDetectionProps> = ({
   buildings,
   onOpenAlertModal,
-  onAlertUpdated
+  onAlertUpdated,
+  lastUpdatedAlert
 }) => {
   const [alerts, setAlerts] = useState<AnomalyAlert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,6 +61,15 @@ export const AnomalyDetection: React.FC<AnomalyDetectionProps> = ({
   useEffect(() => {
     loadAlerts();
   }, [severityFilter, statusFilter, buildingFilter]);
+
+  // Synchronize status immediately whenever an alert is updated via the modal
+  useEffect(() => {
+    if (lastUpdatedAlert) {
+      setAlerts((prev) =>
+        prev.map((a) => (a.id === lastUpdatedAlert.id ? { ...a, ...lastUpdatedAlert } : a))
+      );
+    }
+  }, [lastUpdatedAlert]);
 
   const handleRunAnalysis = async () => {
     setIsAnalyzing(true);

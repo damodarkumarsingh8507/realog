@@ -308,8 +308,16 @@ class ClientMockStore {
       if (updates.status === 'Resolved') {
         alert.resolved_at = new Date().toISOString();
       }
-      return alert;
     }
+    const dashAlert = this.dashboard.recentAlerts.find((a) => a.id === id);
+    if (dashAlert) {
+      Object.assign(dashAlert, updates);
+      if (updates.status === 'Resolved') {
+        dashAlert.resolved_at = new Date().toISOString();
+      }
+    }
+    this.dashboard.summary.activeAlertsCount = this.alerts.filter((a) => a.status !== 'Resolved').length;
+    if (alert) return alert;
     return {
       id,
       building_id: 'comp_lab',
@@ -428,7 +436,7 @@ class ClientMockStore {
     const baseKw = Math.round(zones.reduce((sum, z) => sum + z.baseLoadKw, 0) * 10) / 10;
 
     return {
-      campusName: 'Apex University Central Campus',
+      campusName: 'University Central Campus',
       instantaneousTotalPowerKw: totalKw,
       instantaneousBaselineKw: baseKw,
       powerFactor: 0.96,

@@ -2,7 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import path from 'path';
 import fs from 'fs';
 
-const DB_PATH = path.resolve(process.cwd(), 'smartenergy.sqlite');
+const DB_PATH = process.env.DATABASE_PATH || (process.env.NETLIFY ? '/tmp/smartenergy.sqlite' : path.resolve(process.cwd(), 'smartenergy.sqlite'));
 
 let dbInstance: DatabaseSync | null = null;
 
@@ -144,7 +144,7 @@ function initSchema(db: DatabaseSync) {
     ['operating_hours_start', '8', 'Campus standard operating hours start (0-23)'],
     ['operating_hours_end', '18', 'Campus standard operating hours end (0-23)'],
     ['low_occupancy_threshold', '15', 'Percentage of student capacity considered low occupancy'],
-    ['campus_name', 'Apex University Central Campus', 'Active university campus name']
+    ['campus_name', 'University Central Campus', 'Active university campus name']
   ];
 
   const now = new Date().toISOString();
