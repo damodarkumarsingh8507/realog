@@ -1,0 +1,6 @@
+{
+  "name": "SmartEnergy AI",
+  "description": "SmartEnergy AI — Enterprise Campus Smart Grid Management, Live IoT Telemetry, Demand Prediction & Wastage Detection Platform",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
